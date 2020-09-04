@@ -20,12 +20,14 @@ for i in list_of_tickers:
 app = dash.Dash()
 
 app.layout = html.Div([
-    html.H1('Stock Ticker Dashboard'),
+    html.H1('Stock Analyzer Dashboard'),
+    dcc.Markdown(''' --- '''),
+    html.H2('Chart'),
     html.Div([html.H3('Enter a stock symbol:', style={'paddingRight':'30px'}),
     dcc.Dropdown(
         id='my_ticker_symbol',
         options=tickerz,
-        value=['GOLF'],
+        value=['TSLA'],
         multi=True
     )], style={'display':'inline-block', 'verticalAlign':'top','width':'30%'}),
     html.Div([
@@ -48,17 +50,25 @@ app.layout = html.Div([
     )
     ],style={'display':'inline-block'}),
     dcc.Graph(
-        id='my_graph',
+        id='inter_chart',
         figure={
             'data': [
                 {'x': [1,2], 'y': [3,1]}
             ]
         }
     ),
-    dcc.Markdown(''' --- ''')
+    dcc.Markdown(''' --- '''),
+    dcc.Graph(
+        id='comp_chart',
+        figure={
+            'data': [
+                {'x': [1,2], 'y': [3,1]}
+            ]
+        }
+    ),
 ])
 @app.callback(
-    Output('my_graph', 'figure'),
+    Output('inter_chart', 'figure'),
     [Input('submit-button','n_clicks')],
     [State('my_ticker_symbol', 'value'),
     State('my_date_picker', 'start_date'),
@@ -74,13 +84,40 @@ def update_graph(n_clicks,stock_ticker, start_date, end_date):
         df = df.reset_index(drop=True)
         df = df[(df['date'] >= start) & (df['date'] <= end)]
 
-        traces.append({'x':df.date, 'y': df.Close, 'name':tic})
+        traces.append({'x':df['date'], 'y': df['Close'], 'name':tic})
 
     # Change the output data
     fig = {
         'data': traces,
         'layout': {'title':stock_ticker}
     }
+    return fig
+
+@app.callback(
+    Output('comp_chart', 'figure'),
+    [Input('submit-button','n_clicks')],
+    [State('my_ticker_symbol', 'value'),
+    State('my_date_picker', 'start_date'),
+    State('my_date_picker', 'end_date')])
+def update_comp_graph(n_clicks,stock_ticker, start_date, end_date):
+    start = datetime.strptime(start_date[:10], '%Y-%m-%d')
+    end = datetime.strptime(end_date[:10], '%Y-%m-%d')
+
+    traces = []
+    for tic in stock_ticker:
+        df = yf.Ticker(tic).history(period='max')
+        df['date'] = df.index
+        df = df.reset_index(drop=True)
+        df = df[(df['date'] >= start) & (df['date'] <= end)]
+
+        traces.append({'x':df['date'], 'y': (df['Close']/df['Close'].iloc[0])-1, 'name':tic})
+
+    # Change the output data
+    fig = {
+        'data': traces,
+        'layout': {'title':'Comparison Chart',
+                    'yaxis':{'title':'Percentage Change(%)','tickformat':".2%"}}
+        }
     return fig
 
 if __name__ == '__main__':
