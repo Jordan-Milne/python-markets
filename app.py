@@ -1,3 +1,5 @@
+import ast
+
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
@@ -5,9 +7,9 @@ from dash.dependencies import Input, Output, State
 from datetime import datetime
 import yfinance as yf
 
-from get_all_tickers import get_tickers as gt
-list_of_tickers = gt.get_tickers()
-
+with open('tickers.txt') as f:
+    content = f.read()
+list_of_tickers = ast.literal_eval(content)
 
 tickerz = []
 for i in list_of_tickers:
@@ -16,9 +18,8 @@ for i in list_of_tickers:
     new_dict['value'] = i
     tickerz.append(new_dict)
 
-
 app = dash.Dash()
-
+server = app.server
 app.layout = html.Div([
     html.H1('Stock Analyzer Dashboard'),
     dcc.Markdown(''' --- '''),
@@ -40,7 +41,7 @@ app.layout = html.Div([
             start_date = datetime(2018, 1, 1),
             end_date = datetime.today()
         )
-    ], style={'display':'inline-block'}),
+    ], style={'display':'inline-block','paddingLeft':'30px'}),
 
     html.Div([
             html.Button(id='submit-button',
@@ -76,7 +77,7 @@ app.layout = html.Div([
             start_date = datetime(2018, 1, 1),
             end_date = datetime.today()
         )
-    ], style={'display':'inline-block'}),
+    ], style={'display':'inline-block','paddingLeft':'30px'}),
     html.Div([
             html.Button(id='comp_submit-button',
             n_clicks=0,
@@ -146,8 +147,7 @@ def update_comp_graph(n_clicks,stock_ticker, start_date, end_date):
     # Change the output data
     fig = {
         'data': traces,
-        'layout': {'title':'Comparison Chart',
-                    'yaxis':{'title':'Percentage Change(%)','tickformat':".2%"}}
+        'layout': {'yaxis':{'title':'Percentage Change(%)','tickformat':".2%"}}
         }
     return fig
 
