@@ -60,8 +60,8 @@ app.layout = html.Div([
             html.Br(),
             html.H3('Add Indicators'),
             dcc.RadioItems(
-                id='extras_button',
-                options=[{'label': i, 'value': i} for i in ['None''SMA','EMA']],
+                id='ma_button',
+                options=[{'label': i, 'value': i} for i in ['None','SMA','EMA']],
                 value='None',
                 labelStyle={'display': 'inline-block'}
                 ),
@@ -138,8 +138,10 @@ app.layout = html.Div([
     [Input('submit-button','n_clicks')],
     [State('my_ticker_symbol', 'value'),
     State('my_date_picker', 'start_date'),
-    State('my_date_picker', 'end_date')])
-def update_graph(n_clicks,stock_ticker, start_date, end_date):
+    State('my_date_picker', 'end_date'),
+    State('ma_button', 'value'),
+    State('ma_slider', 'value')])
+def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_value):
     start = datetime.strptime(start_date[:10], '%Y-%m-%d')
     end = datetime.strptime(end_date[:10], '%Y-%m-%d')
 
@@ -151,7 +153,12 @@ def update_graph(n_clicks,stock_ticker, start_date, end_date):
         df = df[(df['date'] >= start) & (df['date'] <= end)]
 
         traces.append({'x':df['date'], 'y': df['Close'], 'name':tic})
-
+        if but_value == 'SMA':
+            df['sma'] = df['Close'].rolling(window=sli_value).mean()
+            traces.append({'x':df['date'], 'y': df['sma'], 'name':f'{sli_value} Day SMA'})
+        if but_value == 'EMA':
+            df['ema'] = df['Close'].ewm(span=sli_value,adjust=False).mean()
+            traces.append({'x':df['date'], 'y': df['ema'], 'name':f'{sli_value} Day EMA'})
     # Change the output data
     fig = {
         'data': traces,
