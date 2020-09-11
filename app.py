@@ -82,18 +82,18 @@ app.layout = html.Div([
                 ], style={'display':'inline-block', 'verticalAlign':'top','width':'3'})),
         # ], style={'display':'inline-block','paddingLeft':'30px'}),
         dbc.Col(html.Div([
-        dcc.Loading(
-            id="loading-1",
-            type="default",
-            children=dcc.Graph(
-                id='inter_chart',
-                figure={
-                    'data': [
-                        {'x': [0], 'y': [0]}
-                    ]
-                }
-            )
-        ),
+        # dcc.Loading(
+        #     id="loading-1",
+        #     type="default",
+        #     children=dcc.Graph(
+        #         id='inter_chart',
+        #         figure={
+        #             'data': [
+        #                 {'x': [0], 'y': [0]}
+        #             ]
+        #         }
+        #     )
+        # ),
         html.Div(id='add_info'),
         ]),width=9)]
         )])]),
@@ -138,37 +138,37 @@ app.layout = html.Div([
     ])
     ],style={'marginLeft':'1%'})
 
-@app.callback(
-    Output('inter_chart', 'figure'),
-    [Input('submit-button','n_clicks')],
-    [State('my_ticker_symbol', 'value'),
-    State('my_date_picker', 'start_date'),
-    State('my_date_picker', 'end_date'),
-    State('ma_button', 'value'),
-    State('ma_slider', 'value')])
-def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_value):
-    start = datetime.strptime(start_date[:10], '%Y-%m-%d')
-    end = datetime.strptime(end_date[:10], '%Y-%m-%d')
-
-    traces = []
-    df = yf.Ticker(stock_ticker).history(period='max')
-    df['date'] = df.index
-    df = df.reset_index(drop=True)
-    df = df[(df['date'] >= start) & (df['date'] <= end)]
-
-    traces.append({'x':df['date'], 'y': df['Close'], 'name':stock_ticker})
-    if but_value == 'SMA':
-        df['sma'] = df['Close'].rolling(window=sli_value).mean()
-        traces.append({'x':df['date'], 'y': df['sma'], 'name':f'{sli_value} Day SMA'})
-    if but_value == 'EMA':
-        df['ema'] = df['Close'].ewm(span=sli_value,adjust=False).mean()
-        traces.append({'x':df['date'], 'y': df['ema'], 'name':f'{sli_value} Day EMA'})
-    # Change the output data
-    fig = {
-        'data': traces,
-        'layout': {'title':stock_ticker}
-    }
-    return fig
+# @app.callback(
+#     Output('inter_chart', 'figure'),
+#     [Input('submit-button','n_clicks')],
+#     [State('my_ticker_symbol', 'value'),
+#     State('my_date_picker', 'start_date'),
+#     State('my_date_picker', 'end_date'),
+#     State('ma_button', 'value'),
+#     State('ma_slider', 'value')])
+# def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_value):
+#     start = datetime.strptime(start_date[:10], '%Y-%m-%d')
+#     end = datetime.strptime(end_date[:10], '%Y-%m-%d')
+#
+#     traces = []
+#     df = yf.Ticker(stock_ticker).history(period='max')
+#     df['date'] = df.index
+#     df = df.reset_index(drop=True)
+#     df = df[(df['date'] >= start) & (df['date'] <= end)]
+#
+#     traces.append({'x':df['date'], 'y': df['Close'], 'name':stock_ticker})
+#     if but_value == 'SMA':
+#         df['sma'] = df['Close'].rolling(window=sli_value).mean()
+#         traces.append({'x':df['date'], 'y': df['sma'], 'name':f'{sli_value} Day SMA'})
+#     if but_value == 'EMA':
+#         df['ema'] = df['Close'].ewm(span=sli_value,adjust=False).mean()
+#         traces.append({'x':df['date'], 'y': df['ema'], 'name':f'{sli_value} Day EMA'})
+#     # Change the output data
+#     fig = {
+#         'data': traces,
+#         'layout': {'title':stock_ticker}
+#     }
+#     return fig
 
 @app.callback(
     Output('add_info', 'children'),
