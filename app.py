@@ -82,16 +82,23 @@ app.layout = html.Div([
                 ], style={'display':'inline-block', 'verticalAlign':'top','width':'3'})),
         # ], style={'display':'inline-block','paddingLeft':'30px'}),
         dbc.Col(html.Div([
-        dcc.Graph(
-            id='inter_chart',
-            figure={
-                'data': [
-                    {'x': [1,2], 'y': [3,1]}
-                ]
-            }
+        dcc.Loading(
+            id="loading-1",
+            type="default",
+            children=dcc.Graph(
+                id='inter_chart',
+                figure={
+                    'data': [
+                        {'x': [0], 'y': [0]}
+                    ]
+                }
+            )
         ),
-
-        html.Div(id='add_info'),
+        dcc.Loading(
+            id="loading-2",
+            type="default",
+            children=html.Div(id='add_info')
+        ),
         ]),width=9)]
         )])]),
     dcc.Tab(label='Comparison',
