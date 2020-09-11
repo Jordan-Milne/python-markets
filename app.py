@@ -191,12 +191,12 @@ def set_display_children(n_clicks, ticker_symbol):
     return html.Div([
         html.H3(f'Company Name: {corp_name}'),
         html.H5(f'Industry: {industry}'),
-        html.H5(f'PE Ratio: {pe_ratio}'),
-        html.Br(),
-        html.H5(f'52 Week High: {yearly_high}'),
-        html.H5(f'52 Week Low: {yearly_low}'),
-        html.Br(),
-        html.P(f'Company Summary: {summary}'),
+        # html.H5(f'PE Ratio: {pe_ratio}'),
+        # html.Br(),
+        # html.H5(f'52 Week High: {yearly_high}'),
+        # html.H5(f'52 Week Low: {yearly_low}'),
+        # html.Br(),
+        # html.P(f'Company Summary: {summary}'),
         ])
 
 @app.callback(
