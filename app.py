@@ -34,9 +34,9 @@ app.layout = html.Div([
         children=[
         html.Div(style={'border-left': '3px solid grey',
     					'marginTop': 25,
-                        'height': '80%',
+                        'height': '95%',
                         'position': 'absolute',
-                        'left': '25%',
+                        'left': '24.5%',
                         'top': '15%'}),
         html.Div([
         dbc.Row([dbc.Col(html.Div([
@@ -89,7 +89,9 @@ app.layout = html.Div([
                     {'x': [1,2], 'y': [3,1]}
                 ]
             }
-        )
+        ),
+
+        html.Div(id='add_info'),
         ]),width=9)]
         )])]),
     dcc.Tab(label='Comparison',
@@ -131,7 +133,7 @@ app.layout = html.Div([
         )
         ]),
     ])
-    ])
+    ],style={'marginLeft':'1%'})
 
 @app.callback(
     Output('inter_chart', 'figure'),
@@ -144,7 +146,6 @@ app.layout = html.Div([
 def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_value):
     start = datetime.strptime(start_date[:10], '%Y-%m-%d')
     end = datetime.strptime(end_date[:10], '%Y-%m-%d')
-    corp_name = yf.Ticker(str(stock_ticker)).info['shortName']
 
     traces = []
     df = yf.Ticker(stock_ticker).history(period='max')
@@ -162,9 +163,34 @@ def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_val
     # Change the output data
     fig = {
         'data': traces,
-        'layout': {'title':corp_name}
+        'layout': {'title':stock_ticker}
     }
     return fig
+
+@app.callback(
+    Output('add_info', 'children'),
+    [Input('submit-button','n_clicks')],
+    [State('my_ticker_symbol', 'value')])
+def set_display_children(n_clicks, ticker_symbol):
+    stock_info = yf.Ticker(str(ticker_symbol)).info
+    corp_name = stock_info['shortName']
+    summary = stock_info['longBusinessSummary']
+    sector = stock_info['sector']
+    industry = stock_info ['industry']
+    pe_ratio = round(stock_info['trailingPE'],2)
+    yearly_high = round(stock_info['fiftyTwoWeekHigh'],2)
+    yearly_low = round(stock_info['fiftyTwoWeekLow'],2)
+
+    return html.Div([
+        html.H3(f'Company Name: {corp_name}'),
+        html.H5(f'Industry: {industry}'),
+        html.H5(f'PE Ratio: {pe_ratio}'),
+        html.Br(),
+        html.H5(f'52 Week High: {yearly_high}'),
+        html.H5(f'52 Week Low: {yearly_low}'),
+        html.Br(),
+        html.P(f'Company Summary: {summary}'),
+        ])
 
 @app.callback(
     Output('comp_chart', 'figure'),
