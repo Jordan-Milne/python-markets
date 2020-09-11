@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output, State
 from datetime import datetime
 import yfinance as yf
 
+
 with open('tickers.txt') as f:
     content = f.read()
 list_of_tickers = ast.literal_eval(content)
@@ -44,8 +45,7 @@ app.layout = html.Div([
         dcc.Dropdown(
             id='my_ticker_symbol',
             options=tickerz,
-            value=['TSLA'],
-            multi=True
+            value='TSLA',
         ),
         html.Br(),
             html.H3('Select Date Range:'),
@@ -144,25 +144,25 @@ app.layout = html.Div([
 def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_value):
     start = datetime.strptime(start_date[:10], '%Y-%m-%d')
     end = datetime.strptime(end_date[:10], '%Y-%m-%d')
+    corp_name = yf.Ticker(str(stock_ticker)).info['shortName']
 
     traces = []
-    for tic in stock_ticker:
-        df = yf.Ticker(tic).history(period='max')
-        df['date'] = df.index
-        df = df.reset_index(drop=True)
-        df = df[(df['date'] >= start) & (df['date'] <= end)]
+    df = yf.Ticker(stock_ticker).history(period='max')
+    df['date'] = df.index
+    df = df.reset_index(drop=True)
+    df = df[(df['date'] >= start) & (df['date'] <= end)]
 
-        traces.append({'x':df['date'], 'y': df['Close'], 'name':tic})
-        if but_value == 'SMA':
-            df['sma'] = df['Close'].rolling(window=sli_value).mean()
-            traces.append({'x':df['date'], 'y': df['sma'], 'name':f'{sli_value} Day SMA'})
-        if but_value == 'EMA':
-            df['ema'] = df['Close'].ewm(span=sli_value,adjust=False).mean()
-            traces.append({'x':df['date'], 'y': df['ema'], 'name':f'{sli_value} Day EMA'})
+    traces.append({'x':df['date'], 'y': df['Close'], 'name':stock_ticker})
+    if but_value == 'SMA':
+        df['sma'] = df['Close'].rolling(window=sli_value).mean()
+        traces.append({'x':df['date'], 'y': df['sma'], 'name':f'{sli_value} Day SMA'})
+    if but_value == 'EMA':
+        df['ema'] = df['Close'].ewm(span=sli_value,adjust=False).mean()
+        traces.append({'x':df['date'], 'y': df['ema'], 'name':f'{sli_value} Day EMA'})
     # Change the output data
     fig = {
         'data': traces,
-        'layout': {'title':stock_ticker}
+        'layout': {'title':corp_name}
     }
     return fig
 
