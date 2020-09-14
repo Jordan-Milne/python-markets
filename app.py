@@ -1,4 +1,5 @@
 import ast
+import pickle
 
 import dash
 import dash_bootstrap_components as dbc
@@ -8,10 +9,8 @@ from dash.dependencies import Input, Output, State
 from datetime import datetime
 import yfinance as yf
 
-
-with open('tickers.txt') as f:
-    content = f.read()
-list_of_tickers = ast.literal_eval(content)
+with open ('outfile', 'rb') as fp:
+    list_of_tickers = pickle.load(fp)
 
 tickerz = []
 for i in list_of_tickers:
@@ -188,25 +187,31 @@ def update_graph(n_clicks,stock_ticker, start_date, end_date, but_value, sli_val
     [Input('submit-button','n_clicks')],
     [State('my_ticker_symbol', 'value')])
 def set_display_children(n_clicks, ticker_symbol):
-    stock_info = yf.Ticker(str(ticker_symbol)).info
-    corp_name = stock_info['shortName']
-    summary = stock_info['longBusinessSummary']
-    sector = stock_info['sector']
-    industry = stock_info ['industry']
-    pe_ratio = round(stock_info['trailingPE'],2)
-    yearly_high = round(stock_info['fiftyTwoWeekHigh'],2)
-    yearly_low = round(stock_info['fiftyTwoWeekLow'],2)
+    try:
+        stock_info = yf.Ticker(str(ticker_symbol)).info
+        corp_name = stock_info['shortName']
+        summary = stock_info['longBusinessSummary']
+        sector = stock_info['sector']
+        industry = stock_info ['industry']
+        pe_ratio = round(stock_info['trailingPE'],2)
+        yearly_high = round(stock_info['fiftyTwoWeekHigh'],2)
+        yearly_low = round(stock_info['fiftyTwoWeekLow'],2)
+        return html.Div([
+            html.H3(f'Company Name: {corp_name}'),
+            html.H5(f'Industry: {industry}'),
+            html.H5(f'PE Ratio: {pe_ratio}'),
+            html.Br(),
+            html.H5(f'52 Week High: {yearly_high}'),
+            html.H5(f'52 Week Low: {yearly_low}'),
+            html.Br(),
+            html.P(f'Company Summary: {summary}'),
+            ])
+    except IndexError:
+        return html.Div([
+            html.H3(f'Company Name: {ticker_symbol}'),
+            html.H5(f'No other information available')
+            ])
 
-    return html.Div([
-        html.H3(f'Company Name: {corp_name}'),
-        html.H5(f'Industry: {industry}'),
-        html.H5(f'PE Ratio: {pe_ratio}'),
-        html.Br(),
-        html.H5(f'52 Week High: {yearly_high}'),
-        html.H5(f'52 Week Low: {yearly_low}'),
-        html.Br(),
-        html.P(f'Company Summary: {summary}'),
-        ])
 
 @app.callback(
     Output('comp_chart', 'figure'),
