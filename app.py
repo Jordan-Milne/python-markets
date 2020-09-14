@@ -29,118 +29,127 @@ app.layout = html.Div([
     dcc.Tabs(id='tabs',
         value='tab_chart',
         children=[
-    dcc.Tab(label='Chart',
-        value='tab_chart',
-        children=[
-        html.Div(style={'border-left': '3px solid grey',
-    					'marginTop': 25,
-                        'height': '95%',
-                        'position': 'absolute',
-                        'left': '24.5%',
-                        'top': '15%'}),
-        html.Div([
-        dbc.Row([dbc.Col(html.Div([
-        html.H3('Enter a Stock Symbol:',
-            style={'paddingRight':'30px'}),
-        dcc.Dropdown(
-            id='my_ticker_symbol',
-            options=tickerz,
-            value='TSLA',
+        dcc.Tab(label='Chart',
+            value='tab_chart',
+            children=[
+            html.Div(style={'border-left': '3px solid grey',
+        					'marginTop': 25,
+                            'height': '95%',
+                            'position': 'absolute',
+                            'left': '24.5%',
+                            'top': '15%'}),
+            html.Div([
+                dbc.Row([
+                    dbc.Col(
+                        html.Div([
+                            html.H3('Enter a Stock Symbol:',
+                                style={'paddingRight':'30px'}),
+                            dcc.Dropdown(
+                                id='my_ticker_symbol',
+                                options=tickerz,
+                                value='TSLA',
+                            ),
+                            html.Br(),
+                            html.H3('Select Date Range:'),
+                            dcc.DatePickerRange(
+                                id='my_date_picker',
+                                min_date_allowed = datetime(1950, 1, 1),
+                                max_date_allowed = datetime.today(),
+                                start_date = datetime(2018, 1, 1),
+                                end_date = datetime.today()
+                            ),
+                            html.Br(),
+                            html.Br(),
+                            html.H3('Add Indicators'),
+                            dcc.RadioItems(
+                                id='ma_button',
+                                options=[{'label': i, 'value': i} for i in ['None','SMA','EMA']],
+                                value='None',
+                                labelStyle={'display': 'inline-block'}
+                                ),
+                            dcc.Slider(
+                                id='ma_slider',
+                                min=1,
+                                max=50,
+                                value=10,
+                                marks={**{str(1):str(1)},**{str(year): str(year) for year in range(5,51,5)}},
+                                step=None
+                                ),
+                            html.Button(id='submit-button',
+                                n_clicks=0,
+                                children='Submit',
+                                style={'fontSize':24,'marginLeft':'40%'}
+                                )
+                            ], style={'display':'inline-block', 'verticalAlign':'top','width':'3'}
+                        )
+                    ),
+                    dbc.Col(
+                        html.Div([
+                            dcc.Loading(
+                                id="loading-1",
+                                type="default",
+                                children=dcc.Graph(
+                                    id='inter_chart',
+                                    figure={
+                                        'data': [
+                                            {'x': [0], 'y': [0]}
+                                        ]
+                                    }
+                                )
+                            ),
+                        dcc.Loading(
+                            id="loading-2",
+                            type="default",
+                            children=html.Div(id='add_info')
+                        ),
+                        ]),width=9
+                    )
+                ])
+            ])
+            ]
         ),
-        html.Br(),
-            html.H3('Select Date Range:'),
-            dcc.DatePickerRange(
-                id='my_date_picker',
-                min_date_allowed = datetime(1950, 1, 1),
-                max_date_allowed = datetime.today(),
-                start_date = datetime(2018, 1, 1),
-                end_date = datetime.today()
-            ),
-            html.Br(),
-            html.Br(),
-            html.H3('Add Indicators'),
-            dcc.RadioItems(
-                id='ma_button',
-                options=[{'label': i, 'value': i} for i in ['None','SMA','EMA']],
-                value='None',
-                labelStyle={'display': 'inline-block'}
-                ),
-            dcc.Slider(
-                id='ma_slider',
-                min=1,
-                max=50,
-                value=10,
-                marks={**{str(1):str(1)},**{str(year): str(year) for year in range(5,51,5)}},
-                step=None
-                ),
-            html.Button(id='submit-button',
-                n_clicks=0,
-                children='Submit',
-                style={'fontSize':24,'marginLeft':'40%'}
+        dcc.Tab(label='Comparison',
+            value='tab_comp',
+            children=[
+            html.Div([html.H3('Enter Stock Symbols:', style={'paddingRight':'30px'}),
+            dcc.Dropdown(
+                id='comp_ticker_symbol',
+                options=tickerz,
+                value=['TSLA'],
+                multi=True
+            )], style={'display':'inline-block', 'verticalAlign':'top','width':'30%'}),
+            html.Div([
+                html.H3('Select start and end dates:'),
+                dcc.DatePickerRange(
+                    id='comp_date_picker',
+                    min_date_allowed = datetime(1950, 1, 1),
+                    max_date_allowed = datetime.today(),
+                    start_date = datetime(2018, 1, 1),
+                    end_date = datetime.today()
                 )
-
-                ], style={'display':'inline-block', 'verticalAlign':'top','width':'3'})),
-        # ], style={'display':'inline-block','paddingLeft':'30px'}),
-        dbc.Col(html.Div([
-        dcc.Loading(
-            id="loading-1",
-            type="default",
-            children=dcc.Graph(
-                id='inter_chart',
-                figure={
-                    'data': [
-                        {'x': [0], 'y': [0]}
-                    ]
-                }
-            )
-        ),
-        dcc.Loading(
-            id="loading-2",
-            type="default",
-            children=html.Div(id='add_info')
-        ),
-        ]),width=9)]
-        )])]),
-    dcc.Tab(label='Comparison',
-        value='tab_comp',
-        children=[
-        html.Div([html.H3('Enter Stock Symbols:', style={'paddingRight':'30px'}),
-        dcc.Dropdown(
-            id='comp_ticker_symbol',
-            options=tickerz,
-            value=['TSLA'],
-            multi=True
-        )], style={'display':'inline-block', 'verticalAlign':'top','width':'30%'}),
-        html.Div([
-            html.H3('Select start and end dates:'),
-            dcc.DatePickerRange(
-                id='comp_date_picker',
-                min_date_allowed = datetime(1950, 1, 1),
-                max_date_allowed = datetime.today(),
-                start_date = datetime(2018, 1, 1),
-                end_date = datetime.today()
-            )
-        ], style={'display':'inline-block','paddingLeft':'30px'}),
-        html.Div([
+            ], style={'display':'inline-block','paddingLeft':'30px'}),
+            html.Div([
                 html.Button(id='comp_submit-button',
                 n_clicks=0,
                 children='Submit',
                 style={'fontSize':24,'marginLeft':'30px'}
-
-        )],
-        style={'display':'inline-block'}
-        ),
-        dcc.Graph(
-            id='comp_chart',
-            figure={
-                'data': [
-                    {'x': [1,2], 'y': [3,1]}
-                ]
-            }
+                )
+            ], style={'display':'inline-block'}
+            ),
+            dcc.Graph(
+                id='comp_chart',
+                figure={
+                    'data': [
+                        {'x': [1,2], 'y': [3,1]}
+                    ]
+                }
+            )
+            ]
         )
-        ]),
-    ])
-    ],style={'marginLeft':'1%'})
+        ]
+    )
+    ],style={'marginLeft':'1%'}
+)
 
 @app.callback(
     Output('inter_chart', 'figure'),
