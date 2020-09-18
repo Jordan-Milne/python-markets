@@ -1,5 +1,5 @@
 # python-markets
-<a href="url"><img src="https://static.thenounproject.com/png/2064110-200.png" align="right" height="58"></a>
+<a href="url"><img src="https://static.thenounproject.com/png/2064110-200.png" align="right" height="78"></a>
 
 ### Work in Progress
 Web app for analyzing stocks using python and dash! Check out what I have done so far at [**this link**](https://python-stock-analyzer.herokuapp.com/). *This is web-app is deployed on heroku so the server usually takes 30-60 seconds to turn on (disadvantage of free teir)*
