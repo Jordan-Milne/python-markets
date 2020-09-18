@@ -206,7 +206,7 @@ def set_display_children(n_clicks, ticker_symbol):
             html.Br(),
             html.P(f'Company Summary: {summary}'),
             ])
-    except IndexError:
+    except:
         return html.Div([
             html.H3(f'Company Name: {ticker_symbol}'),
             html.H5(f'No other information available')
